@@ -30,23 +30,25 @@ import soga2d.Text;
 import soga2d.events.MouseClickListener;
 
 /**
- *
+ * The main menu of the game.
  * @author Matúš Sulír
  */
 public class Menu {
     private GraphicBoard board;
+    private Text newGame;
+    private Text exit;
     
+    /**
+     * Constructs the menu.
+     * @param board the board to display the menu on
+     */
     public Menu(GraphicBoard board) {
         this.board = board;
-    }
-    
-    public void show() {
-        Font font = new Font("Arial", Font.BOLD, 20);
         
-        Text newGame = new Text("NEW GAME");
-        newGame.setFont(font);
-        newGame.setColor(Color.BLUE);
-        newGame.moveTo(400, 200);
+        Font font = new Font("Arial", Font.BOLD, 20);
+        Color color = Color.BLUE;
+        
+        newGame = new Text("NEW GAME", 400, 200, font, color);
         newGame.setMouseClickListener(new MouseClickListener() {
             @Override
             public void onClick() {
@@ -54,17 +56,19 @@ public class Menu {
             }
         });
         
-        Text exit = new Text("EXIT");
-        exit.setFont(font);
-        exit.setColor(Color.BLUE);
-        exit.moveTo(400, 250);
+        exit = new Text("EXIT", 400, 250, font, color);
         exit.setMouseClickListener(new MouseClickListener() {
             @Override
             public void onClick() {
                 exit();
             }
         });
-        
+    }
+    
+    /**
+     * Displays the menu.
+     */
+    public void show() {
         board.lock();
         board.clear();
         
@@ -74,10 +78,16 @@ public class Menu {
         board.unlock();
     }
     
+    /**
+     * Called when a user presses the "New Game" menu.
+     */
     private void newGame() {
-        new Game(board).start();
+        new Game(board, this).start();
     }
     
+    /**
+     * Called when a user presses the "Exit" menu.
+     */
     private void exit() {
         System.exit(0);
     }

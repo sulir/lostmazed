@@ -30,7 +30,10 @@
 package lostmazed;
 
 /**
- *
+ * The main application window.
+ * 
+ * Contains a panel where the game graphics is painted.
+ * 
  * @author Matúš Sulír
  */
 public class MainWindow extends javax.swing.JFrame {
@@ -38,6 +41,7 @@ public class MainWindow extends javax.swing.JFrame {
     /** Creates new form MainWindow */
     public MainWindow() {
         initComponents();
+        mainPanel.requestFocus();
         new Menu(mainPanel.getBoard()).show();
     }
 
@@ -83,6 +87,7 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     /**
+     * The application entry point.
      * @param args the command line arguments
      */
     public static void main(String args[]) {

@@ -21,74 +21,62 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package lostmazed;
+package lostmazed.game;
 
 import java.awt.event.KeyEvent;
-import lostmazed.game.Player;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import lostmazed.game.Maze;
+import lostmazed.Game;
 import soga2d.GraphicBoard;
+import soga2d.Picture;
 import soga2d.events.KeyPressListener;
 
 /**
- * The main game class.
- * 
+ * The player who wants to get out of the maze.
  * @author Matúš Sulír
  */
-public class Game {
-    /**
-     * The game graphic board width.
-     */
-    public static final int WIDTH = 800;
-    
-    /**
-     * The game graphic board height.
-     */
-    public static final int HEIGHT = 600;
-    
+public class Player {
     private GraphicBoard board;
-    private Maze maze;
-    private Player player;
-    private Menu menu;
+    private Picture image;
     
     /**
-     * The game constructor.
-     * @param board the game graphic board
-     * @param menu the game menu
+     * Loads the graphics, initializes the player and adds him to the board.
+     * @param board the board to add the player to
+     * @throws IOException when the image can not be loaded
      */
-    public Game(GraphicBoard board, Menu menu) {
+    public Player(GraphicBoard board) throws IOException {
         this.board = board;
-        this.menu = menu;
-    }
-    
-    /**
-     * Loads the game graphics and starts the game.
-     */
-    public void start() {
-        board.clear();
+        image = new Picture("lostmazed/img/player.png");
         
-        try {
-            maze = new Maze(board);
-            player = new Player(board);
-        } catch (IOException ex) {
-            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        board.setKeyPressListener(new KeyPressListener() {
+        board.addObject(image);
+
+        image.setKeyPressListener(new KeyPressListener() {
             @Override
             public void onKeyPress(KeyEvent event) {
-                if (event.getKeyCode() == KeyEvent.VK_ESCAPE)
-                    pause();
+                move(event);
             }
         });
+        
+        image.moveTo(Game.WIDTH / 2, Game.HEIGHT / 2);
     }
     
     /**
-     * Pauses the game and shows the menu.
+     * React to key presses by moving the player.
+     * @param event the key event
      */
-    public void pause() {
-        menu.show();
+    private void move(KeyEvent event) {
+        switch (event.getKeyCode()) {
+            case KeyEvent.VK_UP:
+                image.moveBy(0, -5);
+                break;
+            case KeyEvent.VK_DOWN:
+                image.moveBy(0, 5);
+                break;
+            case KeyEvent.VK_LEFT:
+                image.moveBy(-5, 0);
+                break;
+            case KeyEvent.VK_RIGHT:
+                image.moveBy(5, 0);
+                break;
+        }
     }
 }
