@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lostmazed.game.Maze;
 import soga2d.GraphicBoard;
-import soga2d.events.KeyPressListener;
+import soga2d.events.KeyListener;
 
 /**
  * The main game class.
@@ -71,15 +71,15 @@ public class Game {
         
         try {
             maze = new Maze(board);
-            player = new Player(board);
+            player = new Player(board, maze);
         } catch (IOException ex) {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        board.setKeyPressListener(new KeyPressListener() {
+        board.setKeyPressListener(new KeyListener() {
             @Override
-            public void onKeyPress(KeyEvent event) {
-                if (event.getKeyCode() == KeyEvent.VK_ESCAPE)
+            public void onKeyEvent(KeyEvent event) {
+                if (event.getID() == KeyEvent.KEY_PRESSED && event.getKeyCode() == KeyEvent.VK_ESCAPE)
                     pause();
             }
         });

@@ -79,14 +79,14 @@ public class Menu {
     }
     
     /**
-     * Called when a user presses the "New Game" menu.
+     * Called when a user choosed the "New Game" menu.
      */
     private void newGame() {
         new Game(board, this).start();
     }
     
     /**
-     * Called when a user presses the "Exit" menu.
+     * Called when a user choosed the "Exit" menu.
      */
     private void exit() {
         System.exit(0);

@@ -26,6 +26,7 @@ package lostmazed.game;
 import java.io.IOException;
 import lostmazed.Game;
 import soga2d.GraphicBoard;
+import soga2d.GraphicObject;
 import soga2d.Picture;
 import soga2d.Texture;
 
@@ -48,5 +49,9 @@ public class Maze {
         
         board.addObject(background);
         board.addObject(maze);
+    }
+    
+    public GraphicObject getMaze() {
+        return maze;
     }
 }
