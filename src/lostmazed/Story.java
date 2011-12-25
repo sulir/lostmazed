@@ -25,70 +25,57 @@ package lostmazed;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
 import soga2d.GraphicBoard;
+import soga2d.Rectangle;
 import soga2d.Text;
-import soga2d.events.MouseClickListener;
+import soga2d.events.KeyListener;
 
 /**
- * The main menu of the game.
+ * The game story screen.
  * @author Matúš Sulír
  */
-public class Menu {
+public class Story {
     private GraphicBoard board;
-    private Text newGame;
-    private Text exit;
+    private MainMenu menu;
+    private String storyString = "One sunny day you decided to make a trip and visit a small hedge maze.\n"
+            + "As you are walking, you suddenly observe stairs leading under the ground. You descend them\n"
+            + "and find a system of underground corridors. After half an hour, you realize that you are...\n"
+            + "lost in a maze!";
     
     /**
-     * Constructs the menu.
-     * @param board the board to display the menu on
+     * Constructs the story screen.
+     * @param board the board to draw on
+     * @param menu the game menu
      */
-    public Menu(GraphicBoard board) {
+    public Story(GraphicBoard board, MainMenu menu) {
         this.board = board;
-        
-        Font font = new Font("Arial", Font.BOLD, 20);
-        Color color = Color.BLUE;
-        
-        newGame = new Text("NEW GAME", 400, 200, font, color);
-        newGame.setMouseClickListener(new MouseClickListener() {
-            @Override
-            public void onClick() {
-                newGame();
-            }
-        });
-        
-        exit = new Text("EXIT", 400, 250, font, color);
-        exit.setMouseClickListener(new MouseClickListener() {
-            @Override
-            public void onClick() {
-                exit();
-            }
-        });
+        this.menu = menu;
     }
     
     /**
-     * Displays the menu.
+     * Shows the story and waits for the user to press a key.
      */
     public void show() {
         board.lock();
         board.clear();
         
-        board.addObject(newGame);
-        board.addObject(exit);
+        Rectangle background = new Rectangle(0, 0, Game.WIDTH, Game.HEIGHT, Color.BLACK, Color.BLACK);
+        Text story = new Text(storyString, 30, 300, new Font("Arial", Font.BOLD, 16), Color.LIGHT_GRAY);
+        Text pressKey = new Text("PRESS ANY KEY TO CONTINUE...", 250, 420, new Font("Arial", Font.BOLD, 16), Color.WHITE);
+        
+        pressKey.setKeyListener(new KeyListener() {
+            @Override
+            public void onKeyEvent(KeyEvent event) {
+                if (event.getID() == KeyEvent.KEY_PRESSED)
+                    new Game(board, menu).start();
+            }
+        });
+        
+        board.addObject(background);
+        board.addObject(story);
+        board.addObject(pressKey);
         
         board.unlock();
-    }
-    
-    /**
-     * Called when a user choosed the "New Game" menu.
-     */
-    private void newGame() {
-        new Game(board, this).start();
-    }
-    
-    /**
-     * Called when a user choosed the "Exit" menu.
-     */
-    private void exit() {
-        System.exit(0);
     }
 }

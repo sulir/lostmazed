@@ -69,7 +69,7 @@ public class Player {
             public void run() {
                 onTimer();
             }
-        }, 50, 50);
+        }, 20, 20);
     }
     
     /**
@@ -90,7 +90,7 @@ public class Player {
             int newSpeed = 0;
             
             if (eventType == KeyEvent.KEY_PRESSED)
-                newSpeed = 4;
+                newSpeed = 2;
             
             switch (event.getKeyCode()) {
                 case KeyEvent.VK_UP:
@@ -117,33 +117,35 @@ public class Player {
      * @param deltaY the number of pixels to move in y direction
      */
     private void tryToMove(int deltaX, int deltaY) {
-        board.lock();
-        
-        updateAngle();
-        
-        int xStep = Integer.signum(deltaX);
-        
-        for (int x = xStep; x != deltaX; x += xStep) {
-            image.moveBy(xStep, 0);
-            
-            if (image.collidesWith(maze.getMaze())) {
-                image.moveBy(-xStep, 0);
-                break;
+        if (deltaX != 0 || deltaY != 0) {
+            board.lock();
+
+            updateAngle();
+
+            int xStep = Integer.signum(deltaX);
+
+            for (int x = xStep; x != deltaX; x += xStep) {
+                image.moveBy(xStep, 0);
+
+                if (image.collidesWith(maze.getMaze())) {
+                    image.moveBy(-xStep, 0);
+                    break;
+                }
             }
-        }
-        
-        int yStep = Integer.signum(deltaY);
-        
-        for (int y = yStep; y != deltaY; y += yStep) {
-            image.moveBy(0, yStep);
-            
-            if (image.collidesWith(maze.getMaze())) {
-                image.moveBy(0, -yStep);
-                break;
+
+            int yStep = Integer.signum(deltaY);
+
+            for (int y = yStep; y != deltaY; y += yStep) {
+                image.moveBy(0, yStep);
+
+                if (image.collidesWith(maze.getMaze())) {
+                    image.moveBy(0, -yStep);
+                    break;
+                }
             }
+
+            board.unlock();
         }
-        
-        board.unlock();
     }
     
     /**

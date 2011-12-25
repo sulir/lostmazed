@@ -42,7 +42,7 @@ public class MainWindow extends javax.swing.JFrame {
     public MainWindow() {
         initComponents();
         mainPanel.requestFocus();
-        new Menu(mainPanel.getBoard()).show();
+        new MainMenu(mainPanel.getBoard()).show();
     }
 
     /** This method is called from within the constructor to
@@ -58,6 +58,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
+        setResizable(false);
 
         mainPanel.setBackground(new java.awt.Color(255, 255, 255));
 

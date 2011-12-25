@@ -51,14 +51,14 @@ public class Game {
     private GraphicBoard board;
     private Maze maze;
     private Player player;
-    private Menu menu;
+    private MainMenu menu;
     
     /**
      * The game constructor.
      * @param board the game graphic board
      * @param menu the game menu
      */
-    public Game(GraphicBoard board, Menu menu) {
+    public Game(GraphicBoard board, MainMenu menu) {
         this.board = board;
         this.menu = menu;
     }
