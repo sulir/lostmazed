@@ -29,7 +29,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import lostmazed.Game;
 import soga2d.GraphicBoard;
-import soga2d.GraphicObject;
 import soga2d.Picture;
 import soga2d.events.KeyListener;
 
@@ -41,7 +40,6 @@ public class Player {
     private GraphicBoard board;
     private Picture image;
     private Maze maze;
-    
     private int xSpeed;
     private int ySpeed;
     
@@ -74,8 +72,11 @@ public class Player {
         }, 50, 50);
     }
     
+    /**
+     * Called periodically to move the player if needed.
+     */
     private void onTimer() {
-        tryToMove(xSpeed, ySpeed, maze.getMaze());
+        tryToMove(xSpeed, ySpeed);
     }
     
     /**
@@ -108,15 +109,24 @@ public class Player {
         }
     }
     
-    private void tryToMove(int deltaX, int deltaY, GraphicObject colliding) {
+    /**
+     * Moves the player if there is no wall in the current direction.
+     * 
+     * If there is a wall, moves the player as close to the wall as possible.
+     * @param deltaX the number of pixels to move in x direction
+     * @param deltaY the number of pixels to move in y direction
+     */
+    private void tryToMove(int deltaX, int deltaY) {
         board.lock();
+        
+        updateAngle();
         
         int xStep = Integer.signum(deltaX);
         
         for (int x = xStep; x != deltaX; x += xStep) {
             image.moveBy(xStep, 0);
             
-            if (image.collidesWith(colliding)) {
+            if (image.collidesWith(maze.getMaze())) {
                 image.moveBy(-xStep, 0);
                 break;
             }
@@ -127,12 +137,33 @@ public class Player {
         for (int y = yStep; y != deltaY; y += yStep) {
             image.moveBy(0, yStep);
             
-            if (image.collidesWith(colliding)) {
+            if (image.collidesWith(maze.getMaze())) {
                 image.moveBy(0, -yStep);
                 break;
             }
         }
         
         board.unlock();
+    }
+    
+    /**
+     * Updates the orientation of the image according to the current moving
+     * direction.
+     */
+    private void updateAngle() {
+        // add one to the direction (-1, 0 or 1) obtain an array index
+        int xDirection = Integer.signum(xSpeed) + 1;
+        int yDirection = Integer.signum(ySpeed) + 1;
+        
+        int[][] angles = {
+            {-45, 0, 45},
+            {-90, -1, 90},
+            {-135, 180, 135}
+        };
+        
+        int newAngle = angles[yDirection][xDirection];
+        
+        if (newAngle != -1)
+            image.setAngle(newAngle);
     }
 }
