@@ -27,8 +27,8 @@ import java.io.IOException;
 import lostmazed.Game;
 import soga2d.GraphicBoard;
 import soga2d.GraphicObject;
-import soga2d.Picture;
-import soga2d.Texture;
+import soga2d.objects.Picture;
+import soga2d.objects.Texture;
 
 /**
  * The maze background and "walls".

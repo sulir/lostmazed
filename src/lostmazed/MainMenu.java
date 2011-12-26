@@ -26,7 +26,7 @@ package lostmazed;
 import java.awt.Color;
 import java.awt.Font;
 import soga2d.GraphicBoard;
-import soga2d.Text;
+import soga2d.objects.Text;
 import soga2d.events.MouseClickListener;
 
 /**

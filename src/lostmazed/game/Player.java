@@ -29,8 +29,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import lostmazed.Game;
 import soga2d.GraphicBoard;
-import soga2d.Picture;
+import soga2d.objects.Picture;
 import soga2d.events.KeyListener;
+import soga2d.objects.Animation;
 
 /**
  * The player who wants to get out of the maze.
@@ -38,7 +39,7 @@ import soga2d.events.KeyListener;
  */
 public class Player {
     private GraphicBoard board;
-    private Picture image;
+    private Animation image;
     private Maze maze;
     private int xSpeed;
     private int ySpeed;
@@ -52,7 +53,8 @@ public class Player {
         this.board = board;
         this.maze = maze;
         
-        image = new Picture("lostmazed/img/player.png");
+        image = new Animation(150, "lostmazed/img/player.png", "lostmazed/img/player_2.png",
+                "lostmazed/img/player_3.png");
         board.addObject(image);
 
         image.setKeyListener(new KeyListener() {
@@ -85,6 +87,7 @@ public class Player {
      */
     private void onKey(KeyEvent event) {
         int eventType = event.getID();
+        boolean wasMoving = (xSpeed != 0 || ySpeed != 0);
         
         if (eventType == KeyEvent.KEY_PRESSED || eventType == KeyEvent.KEY_RELEASED) {
             int newSpeed = 0;
@@ -107,6 +110,14 @@ public class Player {
                     break;
             }
         }
+        
+        boolean isMoving = (xSpeed != 0 || ySpeed != 0);
+        
+        if (!wasMoving && isMoving)
+            image.start();
+        
+        if (wasMoving && !isMoving)
+            image.stop();
     }
     
     /**
