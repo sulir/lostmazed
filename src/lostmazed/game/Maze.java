@@ -23,11 +23,15 @@
  */
 package lostmazed.game;
 
+import java.awt.Color;
 import java.io.IOException;
 import lostmazed.Game;
 import soga2d.GraphicBoard;
 import soga2d.GraphicObject;
+import soga2d.ProximityDetector;
+import soga2d.events.ProximityListener;
 import soga2d.objects.Picture;
+import soga2d.objects.Rectangle;
 import soga2d.objects.Texture;
 
 /**
@@ -35,6 +39,7 @@ import soga2d.objects.Texture;
  * @author Matúš Sulír
  */
 public class Maze {
+    private GraphicBoard board;
     private Texture background;
     private Picture maze;
     
@@ -44,14 +49,48 @@ public class Maze {
      * @throws IOException when the image can not be loaded
      */
     public Maze(GraphicBoard board) throws IOException {
+        this.board = board;
+        
         background = new Texture("lostmazed/img/maze_bg.png", Game.WIDTH, Game.HEIGHT);
         maze = new Picture("lostmazed/img/maze.png");
-        
+
         board.addObject(background);
         board.addObject(maze);
     }
     
+    /**
+     * Returns the maze image to allow collision detection.
+     * @return the maze image
+     */
     public GraphicObject getMaze() {
         return maze;
+    }
+    
+    /**
+     * Registers the player who will use this maze.
+     * @param player the player
+     */
+    public void registerPlayer(Player player) {
+        GraphicObject image = player.getGraphics();
+        
+        board.lock();
+        
+        for (int y = 0; y < 15; y++) {
+            for (int x = 0; x < 20; x++) {
+                final Rectangle tile = new Rectangle(40 * x, 40 * y, 40, 40, Color.BLACK, Color.BLACK);
+                
+                new ProximityDetector(image, tile, 50,
+                        ProximityDetector.DistanceType.CENTER_TO_CENTER).setListener(new ProximityListener() {
+                    @Override
+                    public void onProximity() {
+                        board.removeObject(tile);
+                    }
+                });
+                
+                board.addObject(tile);
+            }
+        }
+        
+        board.unlock();
     }
 }

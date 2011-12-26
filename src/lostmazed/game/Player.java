@@ -29,7 +29,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import lostmazed.Game;
 import soga2d.GraphicBoard;
-import soga2d.objects.Picture;
+import soga2d.GraphicObject;
 import soga2d.events.KeyListener;
 import soga2d.objects.Animation;
 
@@ -39,7 +39,7 @@ import soga2d.objects.Animation;
  */
 public class Player {
     private GraphicBoard board;
-    private Animation image;
+    private Animation player;
     private Maze maze;
     private int xSpeed;
     private int ySpeed;
@@ -53,18 +53,16 @@ public class Player {
         this.board = board;
         this.maze = maze;
         
-        image = new Animation(150, "lostmazed/img/player.png", "lostmazed/img/player_2.png",
+        player = new Animation(150, "lostmazed/img/player.png", "lostmazed/img/player_2.png",
                 "lostmazed/img/player_3.png");
-        board.addObject(image);
+        board.addObject(player);
 
-        image.setKeyListener(new KeyListener() {
+        player.setKeyListener(new KeyListener() {
             @Override
             public void onKeyEvent(KeyEvent event) {
                 onKey(event);
             }
         });
-        
-        image.moveTo(Game.WIDTH / 2, Game.HEIGHT / 2);
         
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -72,6 +70,22 @@ public class Player {
                 onTimer();
             }
         }, 20, 20);
+    }
+    
+    /**
+     * Places the player to the start of the maze.
+     */
+    public void placeToStart() {
+        player.moveTo(Game.WIDTH / 2, Game.HEIGHT / 2);
+    }
+    
+    /**
+     * Returns the player's graphical representation to allow proximity
+     * detection.
+     * @return the graphical object
+     */
+    public GraphicObject getGraphics() {
+        return player;
     }
     
     /**
@@ -114,10 +128,10 @@ public class Player {
         boolean isMoving = (xSpeed != 0 || ySpeed != 0);
         
         if (!wasMoving && isMoving)
-            image.start();
+            player.start();
         
         if (wasMoving && !isMoving)
-            image.stop();
+            player.stop();
     }
     
     /**
@@ -131,15 +145,13 @@ public class Player {
         if (deltaX != 0 || deltaY != 0) {
             board.lock();
 
-            updateAngle();
-
             int xStep = Integer.signum(deltaX);
 
             for (int x = xStep; x != deltaX; x += xStep) {
-                image.moveBy(xStep, 0);
+                player.moveBy(xStep, 0);
 
-                if (image.collidesWith(maze.getMaze())) {
-                    image.moveBy(-xStep, 0);
+                if (player.collidesWith(maze.getMaze())) {
+                    player.moveBy(-xStep, 0);
                     break;
                 }
             }
@@ -147,14 +159,16 @@ public class Player {
             int yStep = Integer.signum(deltaY);
 
             for (int y = yStep; y != deltaY; y += yStep) {
-                image.moveBy(0, yStep);
+                player.moveBy(0, yStep);
 
-                if (image.collidesWith(maze.getMaze())) {
-                    image.moveBy(0, -yStep);
+                if (player.collidesWith(maze.getMaze())) {
+                    player.moveBy(0, -yStep);
                     break;
                 }
             }
 
+            updateAngle();
+            
             board.unlock();
         }
     }
@@ -177,6 +191,6 @@ public class Player {
         int newAngle = angles[yDirection][xDirection];
         
         if (newAngle != -1)
-            image.setAngle(newAngle);
+            player.setAngle(newAngle);
     }
 }

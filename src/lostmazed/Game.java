@@ -72,6 +72,9 @@ public class Game {
         try {
             maze = new Maze(board);
             player = new Player(board, maze);
+            
+            maze.registerPlayer(player);
+            player.placeToStart();
         } catch (IOException ex) {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }
