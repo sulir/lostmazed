@@ -26,14 +26,14 @@ package lostmazed.editor;
 import lostmazed.game.Game;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
-import javax.swing.JFileChooser;
 import lostmazed.*;
 import lostmazed.game.Maze;
 import lostmazed.game.Player;
 import soga2d.GraphicBoard;
+import soga2d.GraphicObject;
 import soga2d.events.KeyListener;
 import soga2d.events.MouseClickListener;
 import soga2d.objects.*;
@@ -52,58 +52,83 @@ public class MazeEditor {
     
     private GraphicBoard board;
     private MainMenu menu;
-    private Rectangle loadBackground;
-    private Rectangle loadMaze;
-    private Rectangle test;
-    private Rectangle exit;
-    private Texture background = new Texture(Game.WIDTH, Game.HEIGHT);
-    private Picture mazePicture = new Picture();
+    private Maze maze;
+    private GraphicObject newMaze, load, setBackground, setMaze, test, save, exit;
     private Rectangle start;
     private Rectangle end;
+    private ImageDialog imageDialog = new ImageDialog();
+    private MazeDialog mazeDialog = new MazeDialog();
     
     /**
      * Constructs a maze editor.
      * @param board the board to draw on
+     * @param menu the main menu
      */
     public MazeEditor(GraphicBoard board, MainMenu menu) {
         this.board = board;
         this.menu = menu;
         
-        loadBackground = createButton("Load background", 20, new MouseClickListener() {
+        newMaze = createButton("New", 110, 10, 45, new MouseClickListener() {
             @Override
             public void onClick() {
-                loadBackground();
+                newMaze();
             }
         });
         
-        loadMaze = createButton("Load maze", 60, new MouseClickListener() {
+        load = createButton("Load", 55, 10, 45, new MouseClickListener() {
             @Override
             public void onClick() {
-                loadMaze();
+                load();
             }
         });
         
-        test = createButton("Test", 100, new MouseClickListener() {
+        setBackground = createButton("Set background", 110, 45, 100, new MouseClickListener() {
+            @Override
+            public void onClick() {
+                setBackground();
+            }
+        });
+        
+        setMaze = createButton("Set maze walls", 110, 80, 100, new MouseClickListener() {
+            @Override
+            public void onClick() {
+                setMaze();
+            }
+        });
+        
+        test = createButton("Test", 110, 115, 100, new MouseClickListener() {
             @Override
             public void onClick() {
                 test();
             }
         });
         
-        exit = createButton("Exit editor", 140, new MouseClickListener() {
+        save = createButton("Save", 110, 150, 100, new MouseClickListener() {
+            @Override
+            public void onClick() {
+                save();
+            }
+        });
+        
+        exit = createButton("Exit editor", 110, 185, 100, new MouseClickListener() {
             @Override
             public void onClick() {
                 exit();
             }
         });
         
-        start = new Rectangle(Game.WIDTH / 2 - 50, Game.HEIGHT / 2, 20, 20, Color.GREEN, new Color(0, 255, 0, 100));
+        start = new Rectangle(Game.WIDTH / 2 - 50, Game.HEIGHT / 2, Maze.END_SIZE, Maze.END_SIZE,
+                Color.GREEN, new Color(0, 255, 0, 100));
         start.addSubobject(new Text("start", 0, 0, MARKER_FONT, Color.WHITE));
         start.enableDragDrop();
         
-        end = new Rectangle(Game.WIDTH / 2 + 50, Game.HEIGHT / 2, 20, 20, Color.RED, new Color(255, 0, 0, 100));
+        end = new Rectangle(Game.WIDTH / 2 + 50, Game.HEIGHT / 2, Maze.END_SIZE, Maze.END_SIZE,
+                Color.RED, new Color(255, 0, 0, 100));
         end.addSubobject(new Text("end", 0, 0, MARKER_FONT, Color.WHITE));
         end.enableDragDrop();
+        
+        maze = new Maze(new Texture(Game.WIDTH, Game.HEIGHT), new Picture(),
+                start.getRectangle().getLocation(), end.getRectangle().getLocation());
     }
     
     /**
@@ -112,7 +137,12 @@ public class MazeEditor {
     public void show() {
         board.lock();
         board.clear();
-        board.addObjects(background, mazePicture, loadBackground, loadMaze, test, exit, start, end);
+
+        start.moveTo((int) maze.getStart().getX(), (int) maze.getStart().getY());
+        end.moveTo((int) maze.getEnd().getX(), (int) maze.getEnd().getY());
+        
+        maze.addToBoard(board);
+        board.addObjects(newMaze, load, setBackground, setMaze, test, save, exit, start, end);
 
         board.setKeyPressListener(new KeyListener() {
             @Override
@@ -128,28 +158,50 @@ public class MazeEditor {
     /**
      * Creates a clickable button.
      * @param label the button label
+     * @param xDistance the x-coordinate distance from the right border of the board
      * @param y the y coordinate
+     * @param width the button width
      * @param clickAction the action to perform after the user clicks the button
      * @return the rectangle representing the button
      */
-    private Rectangle createButton(String label, int y, MouseClickListener clickAction) {
-        Rectangle button = new Rectangle(Game.WIDTH - 120, y, 110, 30, BUTTON_COLOR, BUTTON_FILL);
+    private GraphicObject createButton(String label, int xDistance, int y, int width, MouseClickListener clickAction) {
+        Rectangle button = new Rectangle(Game.WIDTH - xDistance, y, width, 25, BUTTON_COLOR, BUTTON_FILL);
         
-        button.addSubobject(new Text(label, 5, 5, BUTTON_FONT, BUTTON_COLOR));
+        button.addSubobject(new Text(label, 5, 2, BUTTON_FONT, BUTTON_COLOR));
         button.setMouseClickListener(clickAction);
         
         return button;
     }
     
     /**
+     * Creates a new, plain maze.
+     */
+    private void newMaze() {
+        new MazeEditor(board, menu).show();
+    }
+    
+    /**
+     * Loads the maze from a file.
+     */
+    private void load() {
+        if (mazeDialog.showOpenDialog(null) == ImageDialog.APPROVE_OPTION) {
+            try {
+                maze = Maze.load(mazeDialog.getSelectedFile());
+                show();
+            } catch (IOException ex) {
+                new MessageDialog(board, "The maze could not be loaded.").openOK();
+            }
+        }
+    }
+    
+    /**
      * Displays a dialog to open a file and loads the background image.
      */
-    private void loadBackground() {
-        ImageDialog dialog = new ImageDialog();
-        
-        if (dialog.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+    private void setBackground() {
+        if (imageDialog.showOpenDialog(null) == ImageDialog.APPROVE_OPTION) {
             try {
-                background.loadFromFile(dialog.getSelectedFile());
+                maze.setBackground(new Texture(imageDialog.getSelectedFile(), Game.WIDTH, Game.HEIGHT));
+                show();
             } catch (IOException ex) {
                 new MessageDialog(board, "The background image could not be loaded.").openOK();
             }
@@ -160,12 +212,11 @@ public class MazeEditor {
     /**
      * Displays a dialog to open a file and loads the maze image.
      */
-    private void loadMaze() {
-        ImageDialog dialog = new ImageDialog();
-        
-        if (dialog.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+    private void setMaze() {
+        if (imageDialog.showOpenDialog(null) == ImageDialog.APPROVE_OPTION) {
             try {
-                mazePicture.loadFromFile(dialog.getSelectedFile());
+                maze.setMaze(new Picture(imageDialog.getSelectedFile()));
+                show();
             } catch (IOException ex) {
                 new MessageDialog(board, "The maze image could not be loaded.").openOK();
             }
@@ -177,13 +228,21 @@ public class MazeEditor {
      */
     private void test() {
         board.clear();
-        Maze maze = new Maze(board, background, mazePicture);
-        board.addObject(start);
-        board.addObject(end);
+        maze.setEndpoints(start.getRectangle().getLocation(), end.getRectangle().getLocation());
         
         try {
             Player player = new Player(board, maze);
-            maze.startPlaying(player, start.getRectangle().getLocation(), new Point());
+            maze.startPlaying(board, player, new Runnable() {
+                @Override
+                public void run() {
+                    new MessageDialog(board, "The maze was finished successfully.").openOK(new Runnable() {
+                        @Override
+                        public void run() {
+                            show();
+                        }
+                    });
+                }
+            });
             
             board.setKeyPressListener(new KeyListener() {
                 @Override
@@ -194,6 +253,26 @@ public class MazeEditor {
             });
         } catch (IOException ex) {
             new MessageDialog(board, "The player animation could not be loaded.").openOK();
+        }
+    }
+    
+    /**
+     * Saves the maze into a file.
+     */
+    private void save() {
+        if (mazeDialog.showSaveDialog(null) == MazeDialog.APPROVE_OPTION) {
+            maze.setEndpoints(start.getRectangle().getLocation(), end.getRectangle().getLocation());
+            
+            try {
+                File file = mazeDialog.getSelectedFile();
+                
+                if (file.getName().toLowerCase().endsWith(".maze"))
+                    maze.save(file);
+                else
+                    maze.save(new File(file + ".maze"));
+            } catch (IOException ex) {
+                new MessageDialog(board, "The maze could not be saved.").openOK();
+            }
         }
     }
     

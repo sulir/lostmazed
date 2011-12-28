@@ -25,11 +25,9 @@ package lostmazed.game;
 
 import java.awt.Point;
 import java.awt.event.KeyEvent;
-import lostmazed.game.Player;
 import java.io.IOException;
 import lostmazed.MainMenu;
 import lostmazed.MessageDialog;
-import lostmazed.game.Maze;
 import soga2d.GraphicBoard;
 import soga2d.GraphicObject;
 import soga2d.events.KeyListener;
@@ -71,16 +69,14 @@ public class Game {
      * Loads the game graphics and starts the game.
      */
     public void start() {
-        board.clear();
-        
         try {
             GraphicObject background = new Texture("lostmazed/img/maze_bg.png", Game.WIDTH, Game.HEIGHT);
             GraphicObject mazePicture = new Picture("lostmazed/img/maze.png");
             
-            maze = new Maze(board, background, mazePicture);
+            maze = new Maze(background, mazePicture, new Point(Game.WIDTH / 2, Game.HEIGHT / 2), new Point());
             player = new Player(board, maze);
             
-            maze.startPlaying(player, new Point(Game.WIDTH / 2, Game.HEIGHT / 2), new Point());
+            maze.startPlaying(board, player, null);
             
             board.setKeyPressListener(new KeyListener() {
                 @Override

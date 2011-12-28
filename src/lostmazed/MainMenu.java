@@ -28,6 +28,11 @@ import lostmazed.editor.MazeEditor;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import lostmazed.editor.ImageDialog;
+import lostmazed.editor.MazeDialog;
+import lostmazed.game.Maze;
+import lostmazed.game.Player;
 import soga2d.GraphicBoard;
 import soga2d.events.KeyListener;
 import soga2d.objects.Text;
@@ -41,6 +46,7 @@ public class MainMenu {
     private GraphicBoard board;
     private Text storyMode;
     private Text mazeEditor;
+    private Text loadMaze;
     private Text exit;
     
     /**
@@ -69,7 +75,15 @@ public class MainMenu {
             }
         });
         
-        exit = new Text("EXIT", 400, 300, font, color);
+        loadMaze = new Text("LOAD MAZE", 400, 300, font, color);
+        loadMaze.setMouseClickListener(new MouseClickListener() {
+            @Override
+            public void onClick() {
+                loadMaze();
+            }
+        });
+        
+        exit = new Text("EXIT", 400, 350, font, color);
         exit.setMouseClickListener(new MouseClickListener() {
             @Override
             public void onClick() {
@@ -85,7 +99,7 @@ public class MainMenu {
         board.lock();
         board.clear();
         
-        board.addObjects(storyMode, mazeEditor, exit);
+        board.addObjects(storyMode, mazeEditor, loadMaze, exit);
         
         board.unlock();
         
@@ -106,10 +120,38 @@ public class MainMenu {
     }
     
     /**
-     * Start the maze editor.
+     * Starts the maze editor.
      */
     private void mazeEditor() {
         new MazeEditor(board, this).show();
+    }
+    
+    /**
+     * Loads a maze previously saved in the editor.
+     */
+    private void loadMaze() {
+        MazeDialog dialog = new MazeDialog();
+        
+        if (dialog.showOpenDialog(null) == ImageDialog.APPROVE_OPTION) {
+            try {
+                Maze maze = Maze.load(dialog.getSelectedFile());
+                Player player = new Player(board, maze);
+                
+                maze.startPlaying(board, player, new Runnable() {
+                    @Override
+                    public void run() {
+                        new MessageDialog(board, "The maze was finished successfully.").openOK(new Runnable() {
+                            @Override
+                            public void run() {
+                                show();
+                            }
+                        });
+                    }
+                });
+            } catch (IOException ex) {
+                new MessageDialog(board, "The maze could not be loaded.").openOK();
+            }
+        }
     }
     
     /**

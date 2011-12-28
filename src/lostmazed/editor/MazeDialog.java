@@ -28,29 +28,29 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 /**
- * Shows a dialog to open a PNG image file.
+ * The dialog used to load or save a maze.
  * @author Matúš Sulír
  */
-public class ImageDialog extends JFileChooser {
+public class MazeDialog extends JFileChooser {
     /**
-     * Constructs the image dialog.
+     * Constructs the dialog.
      */
-    public ImageDialog() {
-        setFileFilter(new PNGFilter());
+    public MazeDialog() {
+        setFileFilter(new MazeFilter());
     }
     
     /**
-     * The filter used to show only PNG files.
+     * The filter used to show only maze files.
      */
-    private class PNGFilter extends FileFilter {
+    private class MazeFilter extends FileFilter {
         /**
-         * Returns the if the file matches the filter (*.png and directories).
+         * Returns the if the file matches the filter (*.maze and directories).
          * @param file the file object
          * @return true if the file matches the filter, false otherwise
          */
         @Override
         public boolean accept(File file) {
-            return file.getName().toLowerCase().endsWith(".png") || file.isDirectory();
+            return file.getName().toLowerCase().endsWith(".maze") || file.isDirectory();
         }
 
         /**
@@ -59,7 +59,7 @@ public class ImageDialog extends JFileChooser {
          */
         @Override
         public String getDescription() {
-            return "PNG images (*.png)";
+            return "Maze files (*.maze)";
         }
     }
 }
