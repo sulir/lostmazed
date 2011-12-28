@@ -23,11 +23,11 @@
  */
 package lostmazed.game;
 
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
-import lostmazed.Game;
 import soga2d.GraphicBoard;
 import soga2d.GraphicObject;
 import soga2d.events.KeyListener;
@@ -47,7 +47,8 @@ public class Player {
     /**
      * Loads the graphics, initializes the player and adds him to the board.
      * @param board the board to add the player to
-     * @throws IOException when the image can not be loaded
+     * @param maze the maze which the player will play
+     * @throws IOException when player animation can not be loaded
      */
     public Player(GraphicBoard board, Maze maze) throws IOException {
         this.board = board;
@@ -73,10 +74,11 @@ public class Player {
     }
     
     /**
-     * Places the player to the start of the maze.
+     * Moves the player to the specified location.
+     * @param point the location to move the player
      */
-    public void placeToStart() {
-        player.moveTo(Game.WIDTH / 2, Game.HEIGHT / 2);
+    public void placeTo(Point point) {
+        player.moveTo((int) point.getX(), (int) point.getY());
     }
     
     /**

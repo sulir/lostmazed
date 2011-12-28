@@ -23,6 +23,7 @@
  */
 package lostmazed;
 
+import lostmazed.game.Game;
 import java.awt.Color;
 import java.awt.Font;
 import soga2d.GraphicBoard;

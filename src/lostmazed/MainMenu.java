@@ -23,9 +23,13 @@
  */
 package lostmazed;
 
+import lostmazed.game.Story;
+import lostmazed.editor.MazeEditor;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
 import soga2d.GraphicBoard;
+import soga2d.events.KeyListener;
 import soga2d.objects.Text;
 import soga2d.events.MouseClickListener;
 
@@ -36,7 +40,7 @@ import soga2d.events.MouseClickListener;
 public class MainMenu {
     private GraphicBoard board;
     private Text storyMode;
-    private Text mazeCreator;
+    private Text mazeEditor;
     private Text exit;
     
     /**
@@ -47,7 +51,7 @@ public class MainMenu {
         this.board = board;
         
         Font font = new Font("Arial", Font.BOLD, 20);
-        Color color = Color.BLUE;
+        Color color = Color.WHITE;
         
         storyMode = new Text("STORY MODE", 400, 200, font, color);
         storyMode.setMouseClickListener(new MouseClickListener() {
@@ -57,7 +61,13 @@ public class MainMenu {
             }
         });
         
-        mazeCreator = new Text("MAZE CREATOR", 400, 250, font, color);
+        mazeEditor = new Text("MAZE EDITOR", 400, 250, font, color);
+        mazeEditor.setMouseClickListener(new MouseClickListener() {
+            @Override
+            public void onClick() {
+                mazeEditor();
+            }
+        });
         
         exit = new Text("EXIT", 400, 300, font, color);
         exit.setMouseClickListener(new MouseClickListener() {
@@ -75,24 +85,42 @@ public class MainMenu {
         board.lock();
         board.clear();
         
-        board.addObject(storyMode);
-        board.addObject(mazeCreator);
-        board.addObject(exit);
+        board.addObjects(storyMode, mazeEditor, exit);
         
         board.unlock();
+        
+        board.setKeyPressListener(new KeyListener() {
+            @Override
+            public void onKeyEvent(KeyEvent event) {
+                if (event.getID() == KeyEvent.KEY_PRESSED && event.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    exit();
+            }
+        });
     }
     
     /**
-     * Called when a user choosed the "Story Mode" menu.
+     * Starts a new game in the story mode.
      */
     private void storyMode() {
         new Story(board, this).show();
     }
     
     /**
-     * Called when a user choosed the "Exit" menu.
+     * Start the maze editor.
+     */
+    private void mazeEditor() {
+        new MazeEditor(board, this).show();
+    }
+    
+    /**
+     * Displays a confirmation message and exists the program if the user chooses "Yes".
      */
     private void exit() {
-        System.exit(0);
+        new MessageDialog(board, "Do you really want to quit the program?").openYesNo(new Runnable() {
+            @Override
+            public void run() {
+                System.exit(0);
+            }
+        }, null);
     }
 }

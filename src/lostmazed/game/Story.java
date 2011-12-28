@@ -21,77 +21,60 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package lostmazed;
+package lostmazed.game;
 
+import lostmazed.game.Game;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
-import lostmazed.game.Player;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import lostmazed.game.Maze;
+import lostmazed.MainMenu;
 import soga2d.GraphicBoard;
+import soga2d.objects.Text;
 import soga2d.events.KeyListener;
 
 /**
- * The main game class.
- * 
+ * The game story screen.
  * @author Matúš Sulír
  */
-public class Game {
-    /**
-     * The game graphic board width.
-     */
-    public static final int WIDTH = 800;
-    
-    /**
-     * The game graphic board height.
-     */
-    public static final int HEIGHT = 600;
-    
+public class Story {
     private GraphicBoard board;
-    private Maze maze;
-    private Player player;
     private MainMenu menu;
+    private String storyString = "One sunny day you decided to make a trip and visit a small hedge maze.\n"
+            + "As you are walking, you suddenly observe stairs leading under the ground. You descend them\n"
+            + "and find a system of underground corridors. After half an hour, you realize that you are...\n"
+            + "lost in a maze!";
     
     /**
-     * The game constructor.
-     * @param board the game graphic board
+     * Constructs the story screen.
+     * @param board the board to draw on
      * @param menu the game menu
      */
-    public Game(GraphicBoard board, MainMenu menu) {
+    public Story(GraphicBoard board, MainMenu menu) {
         this.board = board;
         this.menu = menu;
     }
     
     /**
-     * Loads the game graphics and starts the game.
+     * Shows the story and waits for the user to press a key.
      */
-    public void start() {
+    public void show() {
+        board.lock();
         board.clear();
         
-        try {
-            maze = new Maze(board);
-            player = new Player(board, maze);
-            
-            maze.registerPlayer(player);
-            player.placeToStart();
-        } catch (IOException ex) {
-            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        Text story = new Text(storyString, 30, 300, new Font("Arial", Font.BOLD, 16), Color.LIGHT_GRAY);
+        Text pressKey = new Text("PRESS ANY KEY TO CONTINUE...", 250, 420, new Font("Arial", Font.BOLD, 16), Color.WHITE);
         
-        board.setKeyPressListener(new KeyListener() {
+        pressKey.setKeyListener(new KeyListener() {
             @Override
             public void onKeyEvent(KeyEvent event) {
-                if (event.getID() == KeyEvent.KEY_PRESSED && event.getKeyCode() == KeyEvent.VK_ESCAPE)
-                    pause();
+                if (event.getID() == KeyEvent.KEY_PRESSED)
+                    new Game(board, menu).start();
             }
         });
-    }
-    
-    /**
-     * Pauses the game and shows the menu.
-     */
-    public void pause() {
-        menu.show();
+        
+        board.addObject(story);
+        board.addObject(pressKey);
+        
+        board.unlock();
     }
 }

@@ -24,15 +24,12 @@
 package lostmazed.game;
 
 import java.awt.Color;
-import java.io.IOException;
-import lostmazed.Game;
+import java.awt.Point;
 import soga2d.GraphicBoard;
 import soga2d.GraphicObject;
 import soga2d.ProximityDetector;
 import soga2d.events.ProximityListener;
-import soga2d.objects.Picture;
 import soga2d.objects.Rectangle;
-import soga2d.objects.Texture;
 
 /**
  * The maze background and "walls".
@@ -40,19 +37,20 @@ import soga2d.objects.Texture;
  */
 public class Maze {
     private GraphicBoard board;
-    private Texture background;
-    private Picture maze;
+    private GraphicObject background;
+    private GraphicObject maze;
+    private Player player;
     
     /**
      * Loads the graphics and adds the maze to the board.
      * @param board the board to add the maze to
-     * @throws IOException when the image can not be loaded
+     * @param background the background image
+     * @param maze the image representing the maze itself
      */
-    public Maze(GraphicBoard board) throws IOException {
+    public Maze(GraphicBoard board, GraphicObject background, GraphicObject maze) {
         this.board = board;
-        
-        background = new Texture("lostmazed/img/maze_bg.png", Game.WIDTH, Game.HEIGHT);
-        maze = new Picture("lostmazed/img/maze.png");
+        this.background = background;
+        this.maze = maze;
 
         board.addObject(background);
         board.addObject(maze);
@@ -67,19 +65,29 @@ public class Maze {
     }
     
     /**
-     * Registers the player who will use this maze.
+     * Registers the player who will use this maze, places him to the start
+     * and starts the game itself.
      * @param player the player
      */
-    public void registerPlayer(Player player) {
-        GraphicObject image = player.getGraphics();
+    public void startPlaying(Player player, Point start, Point end) {
+        this.player = player;
         
         board.lock();
-        
+        showBlackTiles();
+        player.placeTo(start);
+        board.unlock();
+    }
+
+    /**
+     * Displays black tiles (somtimes called "fog of war") to make the maze
+     * harder to finish.
+     */
+    private void showBlackTiles() {
         for (int y = 0; y < 15; y++) {
             for (int x = 0; x < 20; x++) {
                 final Rectangle tile = new Rectangle(40 * x, 40 * y, 40, 40, Color.BLACK, Color.BLACK);
                 
-                new ProximityDetector(image, tile, 50,
+                new ProximityDetector(player.getGraphics(), tile, 50,
                         ProximityDetector.DistanceType.CENTER_TO_CENTER).setListener(new ProximityListener() {
                     @Override
                     public void onProximity() {
@@ -90,7 +98,5 @@ public class Maze {
                 board.addObject(tile);
             }
         }
-        
-        board.unlock();
     }
 }
