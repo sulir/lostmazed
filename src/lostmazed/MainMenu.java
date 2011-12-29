@@ -31,6 +31,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import lostmazed.editor.ImageDialog;
 import lostmazed.editor.MazeDialog;
+import lostmazed.game.Game;
 import lostmazed.game.Maze;
 import lostmazed.game.Player;
 import soga2d.GraphicBoard;
@@ -116,7 +117,8 @@ public class MainMenu {
      * Starts a new game in the story mode.
      */
     private void storyMode() {
-        new Story(board, this).show();
+        Game game = new Game(board, this);
+        new Story(board, this, game).show(1);
     }
     
     /**
@@ -137,7 +139,7 @@ public class MainMenu {
                 Maze maze = Maze.load(dialog.getSelectedFile());
                 Player player = new Player(board, maze);
                 
-                maze.startPlaying(board, player, new Runnable() {
+                maze.play(board, player, new Runnable() {
                     @Override
                     public void run() {
                         new MessageDialog(board, "The maze was finished successfully.").openOK(new Runnable() {

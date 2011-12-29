@@ -23,7 +23,6 @@
  */
 package lostmazed.game;
 
-import lostmazed.game.Game;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
@@ -37,44 +36,55 @@ import soga2d.events.KeyListener;
  * @author Matúš Sulír
  */
 public class Story {
-    private GraphicBoard board;
-    private MainMenu menu;
-    private String storyString = "One sunny day you decided to make a trip and visit a small hedge maze.\n"
+    private static final String[] storyTexts = {
+            "One sunny day you decided to make a trip and visit a small hedge maze.\n"
             + "As you are walking, you suddenly observe stairs leading under the ground. You descend them\n"
             + "and find a system of underground corridors. After half an hour, you realize that you are...\n"
-            + "lost in a maze!";
+            + "lost in a maze!",
+            "Well, you gou out of the underground corridors. But you are in a hedge maze, don't you remember?",
+            "Finally, you are free!"
+    };
+    
+    private GraphicBoard board;
+    private MainMenu menu;
+    private Game game;
     
     /**
      * Constructs the story screen.
      * @param board the board to draw on
      * @param menu the game menu
+     * @param game the game object
      */
-    public Story(GraphicBoard board, MainMenu menu) {
+    public Story(GraphicBoard board, MainMenu menu, Game game) {
         this.board = board;
         this.menu = menu;
+        this.game = game;
     }
     
     /**
      * Shows the story and waits for the user to press a key.
+     * @param partNumber the game part number
      */
-    public void show() {
+    public void show(final int partNumber) {
         board.lock();
         board.clear();
-        
-        Text story = new Text(storyString, 30, 300, new Font("Arial", Font.BOLD, 16), Color.LIGHT_GRAY);
-        Text pressKey = new Text("PRESS ANY KEY TO CONTINUE...", 250, 420, new Font("Arial", Font.BOLD, 16), Color.WHITE);
-        
+
+        Text story = new Text(storyTexts[partNumber - 1], 30, 300, new Font("Arial", Font.BOLD, 16), Color.LIGHT_GRAY);
+        Text pressKey = new Text("Press ENTER to continue...", 250, 420, new Font("Arial", Font.BOLD, 16), Color.WHITE);
+
         pressKey.setKeyListener(new KeyListener() {
             @Override
             public void onKeyEvent(KeyEvent event) {
-                if (event.getID() == KeyEvent.KEY_PRESSED)
-                    new Game(board, menu).start();
+                if (event.getID() == KeyEvent.KEY_PRESSED && event.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (partNumber == storyTexts.length)
+                        menu.show();
+                    else
+                        game.start(partNumber);
+                }
             }
         });
-        
-        board.addObject(story);
-        board.addObject(pressKey);
-        
+
+        board.addObjects(story, pressKey);
         board.unlock();
     }
 }

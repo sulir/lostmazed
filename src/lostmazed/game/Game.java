@@ -23,16 +23,12 @@
  */
 package lostmazed.game;
 
-import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import lostmazed.MainMenu;
 import lostmazed.MessageDialog;
 import soga2d.GraphicBoard;
-import soga2d.GraphicObject;
 import soga2d.events.KeyListener;
-import soga2d.objects.Picture;
-import soga2d.objects.Texture;
 
 /**
  * The main game class.
@@ -66,17 +62,20 @@ public class Game {
     }
     
     /**
-     * Loads the game graphics and starts the game.
+     * Loads the game resources and starts the game.
+     * @param partNumber the game part number
      */
-    public void start() {
+    public void start(final int partNumber) {
         try {
-            GraphicObject background = new Texture("lostmazed/img/maze_bg.png", Game.WIDTH, Game.HEIGHT);
-            GraphicObject mazePicture = new Picture("lostmazed/img/maze.png");
-            
-            maze = new Maze(background, mazePicture, new Point(Game.WIDTH / 2, Game.HEIGHT / 2), new Point());
+            maze = Maze.load(getClass().getClassLoader().getResourceAsStream("lostmazed/res/part" + partNumber + ".maze"));
             player = new Player(board, maze);
             
-            maze.startPlaying(board, player, null);
+            maze.play(board, player, new Runnable() {
+                @Override
+                public void run() {
+                    showStory(partNumber + 1);
+                }
+            });
             
             board.setKeyPressListener(new KeyListener() {
                 @Override
@@ -86,7 +85,7 @@ public class Game {
                 }
             });
         } catch (IOException ex) {
-            new MessageDialog(board, "Could not load the game graphics.").openOK(new Runnable() {
+            new MessageDialog(board, "Could not load the game resources.").openOK(new Runnable() {
                 @Override
                 public void run() {
                     menu.show();
@@ -105,5 +104,13 @@ public class Game {
                 menu.show();
             }
         }, null);
+    }
+    
+    /**
+     * Shows the story screen for the particular part.
+     * @param partNumber the game part number
+     */
+    private void showStory(int partNumber) {
+        new Story(board, menu, this).show(partNumber);
     }
 }

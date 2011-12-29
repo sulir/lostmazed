@@ -54,8 +54,8 @@ public class Player {
         this.board = board;
         this.maze = maze;
         
-        player = new Animation(150, "lostmazed/img/player.png", "lostmazed/img/player_2.png",
-                "lostmazed/img/player_3.png");
+        player = new Animation(150, "lostmazed/res/player.png", "lostmazed/res/player_2.png",
+                "lostmazed/res/player_3.png");
         board.addObject(player);
 
         player.setKeyListener(new KeyListener() {

@@ -141,7 +141,7 @@ public class Maze {
      * @param player the player
      * @param endAction the action to perform after successful finish (can be null)
      */
-    public void startPlaying(GraphicBoard board, Player player, Runnable endAction) {
+    public void play(GraphicBoard board, Player player, Runnable endAction) {
         board.lock();
         board.clear();
         
@@ -161,31 +161,38 @@ public class Maze {
      * @throws IOException when the file could not be saved
      */
     public void save(File file) throws IOException {
-        DataOutputStream output = new DataOutputStream(new FileOutputStream(file));
+        DataOutputStream output = null;
         
-        output.writeInt(FORMAT_TAG);
-        output.writeInt(VERSION);
-        
-        output.writeInt((int) start.getX());
-        output.writeInt((int) start.getY());
-        output.writeInt((int) end.getX());
-        output.writeInt((int) end.getY());
-        
-        ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
-        ImageIO.write(background.getImage(), "png", imageStream);
-        byte[] backgroundBytes = imageStream.toByteArray();
-        
-        imageStream.reset();
-        ImageIO.write(maze.getImage(), "png", imageStream);
-        byte[] mazeBytes = imageStream.toByteArray();
-        
-        output.writeInt(backgroundBytes.length);
-        output.writeInt(mazeBytes.length);
-                
-        output.write(backgroundBytes);
-        output.write(mazeBytes);
-        
-        output.close();
+        try {
+            output = new DataOutputStream(new FileOutputStream(file));
+
+            output.writeInt(FORMAT_TAG);
+            output.writeInt(VERSION);
+
+            output.writeInt((int) start.getX());
+            output.writeInt((int) start.getY());
+            output.writeInt((int) end.getX());
+            output.writeInt((int) end.getY());
+
+            ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+            ImageIO.write(background.getImage(), "png", imageStream);
+            byte[] backgroundBytes = imageStream.toByteArray();
+
+            imageStream.reset();
+            ImageIO.write(maze.getImage(), "png", imageStream);
+            byte[] mazeBytes = imageStream.toByteArray();
+
+            output.writeInt(backgroundBytes.length);
+            output.writeInt(mazeBytes.length);
+
+            output.write(backgroundBytes);
+            output.write(mazeBytes);
+        } catch (IOException ex) {
+            throw new IOException("The maze could not be saved", ex);
+        } finally {
+            if (output != null)
+                output.close();
+        }
     }
     
     /**
@@ -195,32 +202,57 @@ public class Maze {
      * @throws IOException when the maze could not be loaded
      */
     public static Maze load(File file) throws IOException {
-        DataInputStream input = new DataInputStream(new FileInputStream(file));
+        try {
+            return load(new FileInputStream(file));
+        } catch (IOException ex) {
+            throw new IOException("The maze file could not be loaded", ex);
+        }
+    }
+    
+    /**
+     * Loads a maze from an input stream.
+     * @param file the input stream
+     * @return the loaded maze
+     * @throws IOException when the maze could not be loaded
+     */
+    public static Maze load(InputStream stream) throws IOException {
+        DataInputStream input = null;
         
-        int formatTag = input.readInt();
-        if (formatTag != FORMAT_TAG)
-            throw new IOException("Invalid format");
+        try {
+            input = new DataInputStream(stream);
+
+            int formatTag = input.readInt();
+            int version = input.readInt();
             
-        int version = input.readInt();
-        
-        Point start = new Point(input.readInt(), input.readInt());
-        Point end = new Point(input.readInt(), input.readInt());
-        
-        byte[] backgroundBytes = new byte[input.readInt()];
-        byte[] mazeBytes = new byte[input.readInt()];
-        
-        input.read(backgroundBytes, 0, backgroundBytes.length);
-        input.read(mazeBytes, 0, mazeBytes.length);
-        
-        BufferedImage backgroundImage = ImageIO.read(new ByteArrayInputStream(backgroundBytes));
-        BufferedImage mazeImage = ImageIO.read(new ByteArrayInputStream(mazeBytes));
-        
-        GraphicObject background = new Picture(backgroundImage);
-        GraphicObject maze = new Texture(mazeImage, Game.WIDTH, Game.HEIGHT);
-        
-        input.close();
-        
-        return new Maze(background, maze, start, end);
+            if (formatTag != FORMAT_TAG || version != VERSION)
+                throw new InvalidObjectException("The input file has an invalid format");
+
+            Point start = new Point(input.readInt(), input.readInt());
+            Point end = new Point(input.readInt(), input.readInt());
+
+            byte[] backgroundBytes = new byte[input.readInt()];
+            byte[] mazeBytes = new byte[input.readInt()];
+
+            input.read(backgroundBytes, 0, backgroundBytes.length);
+            input.read(mazeBytes, 0, mazeBytes.length);
+
+            BufferedImage backgroundImage = ImageIO.read(new ByteArrayInputStream(backgroundBytes));
+            BufferedImage mazeImage = ImageIO.read(new ByteArrayInputStream(mazeBytes));
+
+            GraphicObject background = new Picture(backgroundImage);
+            GraphicObject maze = new Texture(mazeImage, Game.WIDTH, Game.HEIGHT);
+
+            input.close();
+
+            return new Maze(background, maze, start, end);
+        } catch (InvalidObjectException ex) {
+            throw ex;
+        } catch (IOException ex) {
+            throw new IOException("The maze could not be loaded", ex);
+        } finally {
+            if (input != null)
+                input.close();
+        }
     }
     
     /**

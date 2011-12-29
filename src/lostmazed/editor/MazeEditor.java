@@ -189,7 +189,7 @@ public class MazeEditor {
                 maze = Maze.load(mazeDialog.getSelectedFile());
                 show();
             } catch (IOException ex) {
-                new MessageDialog(board, "The maze could not be loaded.").openOK();
+                new MessageDialog(board, ex.getMessage() + ".").openOK();
             }
         }
     }
@@ -232,7 +232,7 @@ public class MazeEditor {
         
         try {
             Player player = new Player(board, maze);
-            maze.startPlaying(board, player, new Runnable() {
+            maze.play(board, player, new Runnable() {
                 @Override
                 public void run() {
                     new MessageDialog(board, "The maze was finished successfully.").openOK(new Runnable() {
@@ -252,7 +252,7 @@ public class MazeEditor {
                 }
             });
         } catch (IOException ex) {
-            new MessageDialog(board, "The player animation could not be loaded.").openOK();
+            new MessageDialog(board, "Could not load the game resources.").openOK();
         }
     }
     
