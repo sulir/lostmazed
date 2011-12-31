@@ -38,6 +38,7 @@ import soga2d.GraphicBoard;
 import soga2d.events.KeyListener;
 import soga2d.objects.Text;
 import soga2d.events.MouseClickListener;
+import soga2d.objects.Picture;
 
 /**
  * The main menu of the game.
@@ -45,6 +46,7 @@ import soga2d.events.MouseClickListener;
  */
 public class MainMenu {
     private GraphicBoard board;
+    private Picture menuPicture;
     private Text storyMode;
     private Text mazeEditor;
     private Text loadMaze;
@@ -57,10 +59,14 @@ public class MainMenu {
     public MainMenu(GraphicBoard board) {
         this.board = board;
         
+        try {
+            menuPicture = new Picture("lostmazed/res/menu.png");
+        } catch (IOException ex) {}
+            
         Font font = new Font("Arial", Font.BOLD, 20);
         Color color = Color.WHITE;
         
-        storyMode = new Text("STORY MODE", 400, 200, font, color);
+        storyMode = new Text("STORY MODE", 560, 200, font, color);
         storyMode.setMouseClickListener(new MouseClickListener() {
             @Override
             public void onClick() {
@@ -68,7 +74,7 @@ public class MainMenu {
             }
         });
         
-        mazeEditor = new Text("MAZE EDITOR", 400, 250, font, color);
+        mazeEditor = new Text("MAZE EDITOR", 560, 250, font, color);
         mazeEditor.setMouseClickListener(new MouseClickListener() {
             @Override
             public void onClick() {
@@ -76,7 +82,7 @@ public class MainMenu {
             }
         });
         
-        loadMaze = new Text("LOAD MAZE", 400, 300, font, color);
+        loadMaze = new Text("LOAD MAZE", 560, 300, font, color);
         loadMaze.setMouseClickListener(new MouseClickListener() {
             @Override
             public void onClick() {
@@ -84,7 +90,7 @@ public class MainMenu {
             }
         });
         
-        exit = new Text("EXIT", 400, 350, font, color);
+        exit = new Text("EXIT", 560, 350, font, color);
         exit.setMouseClickListener(new MouseClickListener() {
             @Override
             public void onClick() {
@@ -99,9 +105,7 @@ public class MainMenu {
     public void show() {
         board.lock();
         board.clear();
-        
-        board.addObjects(storyMode, mazeEditor, loadMaze, exit);
-        
+        board.addObjects(menuPicture, storyMode, mazeEditor, loadMaze, exit);
         board.unlock();
         
         board.setKeyPressListener(new KeyListener() {
