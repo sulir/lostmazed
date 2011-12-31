@@ -52,7 +52,7 @@ public class Maze {
      */
     public static final int END_DISTANCE = 15;
     
-    private static final int BLACK_TILE_SIZE = 40;
+    private static final int BLACK_TILE_SIZE = 25;
     private static final int UNCOVER_DISTANCE = 50;
     private static final int FORMAT_TAG = 0x70573A73;
     private static final int VERSION = 1;
@@ -225,24 +225,22 @@ public class Maze {
             int version = input.readInt();
             
             if (formatTag != FORMAT_TAG || version != VERSION)
-                throw new InvalidObjectException("The input file has an invalid format");
+                throw new InvalidObjectException("The maze file has an invalid format");
 
             Point start = new Point(input.readInt(), input.readInt());
             Point end = new Point(input.readInt(), input.readInt());
-
+            
             byte[] backgroundBytes = new byte[input.readInt()];
             byte[] mazeBytes = new byte[input.readInt()];
-
-            input.read(backgroundBytes, 0, backgroundBytes.length);
-            input.read(mazeBytes, 0, mazeBytes.length);
-
+            
+            input.readFully(backgroundBytes, 0, backgroundBytes.length);
+            input.readFully(mazeBytes, 0, mazeBytes.length);
+            
             BufferedImage backgroundImage = ImageIO.read(new ByteArrayInputStream(backgroundBytes));
             BufferedImage mazeImage = ImageIO.read(new ByteArrayInputStream(mazeBytes));
-
+            
             GraphicObject background = new Picture(backgroundImage);
             GraphicObject maze = new Texture(mazeImage, Game.WIDTH, Game.HEIGHT);
-
-            input.close();
 
             return new Maze(background, maze, start, end);
         } catch (InvalidObjectException ex) {
